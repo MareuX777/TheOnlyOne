@@ -24,14 +24,30 @@ Ideal tanto para aprendizado quanto para uso real em servidores.
 
 ## 🚀 Funcionalidades
 
-| Comando | Descrição                        |
-| ------- | -------------------------------- |
-| `ping`  | Retorna `Pong` + latência do bot |
-| `ban`   | Bane um membro do servidor       |
-| `unban` | Remove o banimento de um membro  |
-| `clear` | Apaga mensagens de um canal      |
+| Comando                | Descrição                       |
+| ---------------------- | ------------------------------- |
+| `ping` / `/ping`       | Retorna latência do bot         |
+| `ban` / `/ban`         | Bane um membro do servidor      |
+| `unban`                | Remove o banimento de um membro |
+| `clear`                | Apaga mensagens de um canal     |
+| `timeout` / `/timeout` | Aplica timeout em um membro     |
 
 > ⚠️ Comandos de moderação exigem permissões apropriadas.
+
+---
+
+## 🎮 Tipos de Comandos
+
+O bot suporta dois tipos de comandos:
+
+* **Prefixados**: `!ban`, `$clear`
+* **Slash Commands**: `/ban`, `/timeout`
+
+Os slash commands oferecem melhor experiência com:
+
+* Autocomplete
+* Validação automática
+* Interface nativa do Discord
 
 ---
 
@@ -42,11 +58,14 @@ TheOnlyOne/
 │
 ├── src/
 │   └── theonlyone/
-│       ├── app.py                # Inicialização do bot
+│       ├── app.py
+│       ├── utils/
+│       │   └── logger.py        # Sistema de logging
 │       └── commands/
-│           └── commands.py       # Comandos de moderação
+│           ├── cmd.py           # Comandos prefixados
+│           └── slash.py         # Slash commands
 │
-├── requeriments.txt
+├── requirements.txt
 └── README.md
 ```
 
@@ -65,7 +84,7 @@ TheOnlyOne/
 ```bash
 git clone <URL-do-repositório>
 cd TheOnlyOne
-pip install -r requeriments.txt
+pip install -r requirements.txt
 ```
 
 ---
@@ -95,6 +114,7 @@ O bot precisa das seguintes permissões no servidor:
 * Banir membros
 * Desbanir membros
 * Gerenciar mensagens
+* Moderar membros (timeout)
 
 ---
 
@@ -106,20 +126,27 @@ O projeto utiliza o sistema de **Cogs do discord.py**, permitindo:
 * Fácil adição de novos comandos
 * Melhor manutenção do código
 
+Além disso, o projeto conta com:
+
+* Sistema de logging estruturado
+* Separação entre comandos prefixados e slash commands
+* Tratamento global de erros
+
 ---
 
 ## 📈 Roadmap
 
-* [ ] Sistema de logs
+* [x] Sistema de logs
+* [x] Slash commands (`/`)
 * [ ] Comandos de moderação avançados (mute, warn)
 * [ ] Sistema de permissões customizado
-* [ ] Slash commands (`/`)
+* [ ] Histórico de punições
 
 ---
 
 ## 🤝 Contribuição
 
-Contribuições são bem-vindas.
+Contribuições são bem-vindas!
 
 1. Fork do projeto
 2. Crie uma branch (`feature/minha-feature`)
@@ -131,12 +158,10 @@ Contribuições são bem-vindas.
 
 ## 📄 Licença
 
-Este projeto está licenciado sob a licença MIT - veja o arquivo LICENSE para detalhes.
+Este projeto está licenciado sob a licença MIT — veja o arquivo `LICENSE` para mais detalhes.
 
 ---
 
 ## 💡 Observação
 
 Este projeto está em desenvolvimento ativo. Mudanças podem ocorrer com frequência.
-
----
