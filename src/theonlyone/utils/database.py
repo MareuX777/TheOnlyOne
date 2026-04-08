@@ -195,7 +195,7 @@ class Database:
                 VALUES (%s, %s)
                 ON DUPLICATE KEY UPDATE log_channel_id = %s
                 """,
-                (guild_id, channel_id)
+                (guild_id, channel_id, channel_id)
             )
             conn.commit()
             logger.info(f"Log channel set | Guild: {guild_id} | Channel: {channel_id}")
@@ -225,7 +225,7 @@ class Database:
             cursor.execute(
                 """
                 INSERT INTO reaction_roles (guild_id, message_id, channel_id, emoji, role_id)
-                VALUES (?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s)
                 """,
                 (guild_id, message_id, channel_id, emoji, role_id)
             )
@@ -244,7 +244,7 @@ class Database:
             cursor.execute(
                 """
                 SELECT * FROM reaction_roles
-                WHERE guild_id = %s AND message_id = ?
+                WHERE guild_id = %s AND message_id = %s
                 """,
                 (guild_id, message_id)
             )
@@ -261,7 +261,7 @@ class Database:
             cursor.execute(
                 """
                 SELECT role_id FROM reaction_roles
-                WHERE guild_id = %s AND message_id = ? AND emoji = ?
+                WHERE guild_id = %s AND message_id = %s AND emoji = %s
                 """,
                 (guild_id, message_id, emoji)
             )
