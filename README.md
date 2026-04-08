@@ -25,36 +25,39 @@ Ideal tanto para aprendizado quanto para uso real em servidores.
 ## 🚀 Funcionalidades
 
 ### 🛡️ Moderação
-| Comando                | Descrição                       |
-| ---------------------- | ------------------------------- |
-| `ban` / `/ban`         | Bane um membro do servidor      |
-| `unban`                | Remove o banimento de um membro |
-| `kick` / `/kick`       | Expulsa um membro do servidor   |
-| `clear` / `/clear`     | Apaga mensagens de um canal     |
-| `timeout` / `/timeout` | Aplica timeout em um membro     |
-| `warn` / `/warn`       | Dá aviso a um membro            |
-| `warnings` / `/warnings` | Mostra avisos de um membro (com histórico em DB) |
-| `mute` / `/mute`       | Silencia um membro              |
-| `unmute` / `/unmute`   | Dessilencia um membro           |
+
+| Comando                  | Descrição                                                    |
+| ------------------------ | ------------------------------------------------------------ |
+| `ban` / `/ban`           | Bane um membro do servidor                                   |
+| `unban`                  | Remove o banimento de um membro                              |
+| `kick` / `/kick`         | Expulsa um membro do servidor                                |
+| `clear` / `/clear`       | Apaga mensagens de um canal                                  |
+| `timeout` / `/timeout`   | Aplica timeout em um membro                                  |
+| `warn` / `/warn`         | Dá aviso a um membro                                         |
+| `warnings` / `/warnings` | Mostra avisos de um membro (com histórico quando disponível) |
+| `mute` / `/mute`         | Silencia um membro                                           |
+| `unmute` / `/unmute`     | Dessilencia um membro                                        |
 
 ### 🎭 Sistemas Automáticos
-| Comando                | Descrição                       |
-| ---------------------- | ------------------------------- |
-| `reaction_role_setup` | Cria painel de reaction roles    |
-| `reaction_role_add` | Adiciona emoji e role ao painel |
-| `ticket_panel` | Cria painel para abertura de tickets |
-| `ticket_add` / `ticket_remove` | Gerencia acesso ao ticket |
-| `ticket_close` | Fecha ticket (armazenado em DB) |
+
+| Comando                        | Descrição                            |
+| ------------------------------ | ------------------------------------ |
+| `reaction_role_setup`          | Cria painel de reaction roles        |
+| `reaction_role_add`            | Adiciona emoji e role ao painel      |
+| `ticket_panel`                 | Cria painel para abertura de tickets |
+| `ticket_add` / `ticket_remove` | Gerencia acesso ao ticket            |
+| `ticket_close`                 | Fecha ticket                         |
 
 ### 📊 Utilitários
-| Comando                | Descrição                       |
-| ---------------------- | ------------------------------- |
-| `ping` / `/ping`       | Retorna latência do bot         |
-| `userinfo` / `/userinfo` | Info de um usuário            |
-| `serverinfo` / `/serverinfo` | Info do servidor             |
-| `help` / `/help`       | Lista de comandos              |
 
-> ⚠️ Comandos de moderação exigem permissões apropriadas.
+| Comando                      | Descrição               |
+| ---------------------------- | ----------------------- |
+| `ping` / `/ping`             | Retorna latência do bot |
+| `userinfo` / `/userinfo`     | Info de um usuário      |
+| `serverinfo` / `/serverinfo` | Info do servidor        |
+| `help` / `/help`             | Lista de comandos       |
+
+> Comandos de moderação exigem permissões apropriadas.
 
 ---
 
@@ -83,15 +86,12 @@ TheOnlyOne/
 │       ├── app.py
 │       ├── utils/
 │       │   ├── logger.py          # Sistema de logging
-│       │   └── database.py        # BD com prepared statements
+│       │   └── database.py        # Camada de banco (MySQL opcional)
 │       └── commands/
 │           ├── commands.py        # Comandos prefixados
 │           ├── slash_commands.py  # Slash commands
 │           ├── reaction_roles.py  # Sistema de reaction roles
 │           └── tickets.py         # Sistema de tickets
-│
-├── data/
-│   └── bot.db                     # Banco de dados SQLite
 │
 ├── requirements.txt
 └── README.md
@@ -104,6 +104,7 @@ TheOnlyOne/
 * Python **3.10+**
 * `discord.py`
 * `python-dotenv`
+* `mysql-connector-python` (opcional)
 
 ---
 
@@ -123,6 +124,12 @@ Crie um arquivo `.env` na raiz do projeto:
 
 ```env
 TOKEN=seu_token_aqui
+
+# Opcional (MySQL)
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=senha
+DB_NAME=theonlyone
 ```
 
 ---
@@ -154,64 +161,60 @@ O projeto utiliza o sistema de **Cogs do discord.py**, permitindo:
 * Fácil adição de novos comandos
 * Melhor manutenção do código
 
-Além disso, o projeto conta com:
+Além disso:
 
 * Sistema de logging estruturado
 * Separação entre comandos prefixados e slash commands
 * Tratamento global de erros
-* **Banco de dados SQLite com prepared statements** para persistência segura
+* Camada de banco desacoplada
 
 ---
 
 ## 💾 Banco de Dados
 
-O bot utiliza **SQLite** com prepared statements para máxima segurança contra injeção de SQL.
+O bot utiliza **MySQL** para persistência de dados.
 
-### Tabelas:
+### Importante
 
-- **warns**: Histórico de avisos com razão, moderador e data
-- **guild_config**: Configurações por servidor (canal de logs, prefixo, etc)
-- **reaction_roles**: Mapeamento emoji → role para automação
-- **tickets**: Histórico de tickets criados, fechados e por quem
-- **users**: Estatísticas de usuários (XP, level, mensagens)
+* O banco é **opcional**
+* O bot funciona normalmente **sem banco**
+* Quando indisponível, os sistemas utilizam fallback em memória (sem persistência)
+* Falhas de conexão não derrubam o bot
 
-### Uso no código:
+### Tabelas
+
+* **warns**
+* **guild_config**
+* **reaction_roles**
+* **tickets**
+* **users**
+
+### Uso
 
 ```python
 from theonlyone.utils.database import db
 
-# Adicionar aviso
 db.add_warn(guild_id=123, user_id=456, moderator_id=789, reason="Spam")
-
-# Obter avisos
 warns = db.get_warns(guild_id=123, user_id=456)
 
-# Adicionar XP
 db.add_xp(guild_id=123, user_id=456, xp=10)
-
-# Obter leaderboard
-leaderboard = db.get_leaderboard(guild_id=123, limit=10)
+leaderboard = db.get_leaderboard(guild_id=123)
 ```
-
----
-
-## 🧩 Arquitetura
 
 ---
 
 ## 📈 Roadmap
 
 * [x] Sistema de logs
-* [x] Slash commands (`/`)
-* [ ] Comandos de moderação avançados (mute, warn)
+* [x] Slash commands
+* [x] Estrutura de banco (MySQL)
+* [ ] Integração completa com banco
 * [ ] Sistema de permissões customizado
-* [ ] Histórico de punições
+* [ ] Histórico avançado de punições
 
 ---
 
 ## 🤝 Contribuição
-
-Contribuições são bem-vindas!
 
 1. Fork do projeto
 2. Crie uma branch (`feature/minha-feature`)
@@ -223,10 +226,10 @@ Contribuições são bem-vindas!
 
 ## 📄 Licença
 
-Este projeto está licenciado sob a licença MIT — veja o arquivo `LICENSE` para mais detalhes.
+Licença MIT.
 
 ---
 
 ## 💡 Observação
 
-Este projeto está em desenvolvimento ativo. Mudanças podem ocorrer com frequência.
+Projeto em desenvolvimento ativo.
