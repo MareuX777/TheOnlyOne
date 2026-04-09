@@ -1,6 +1,6 @@
 import os
-from theonlyone.utils.logger import logger
 from dotenv import load_dotenv
+from ..utils.logger import logger
 
 load_dotenv()
 
