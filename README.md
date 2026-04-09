@@ -29,7 +29,7 @@ Ideal tanto para aprendizado quanto para uso real em servidores.
 | Comando                  | Descrição                                                    |
 | ------------------------ | ------------------------------------------------------------ |
 | `ban` / `/ban`           | Bane um membro do servidor                                   |
-| `unban`                  | Remove o banimento de um membro                              |
+| `unban` / `/unban`       | Remove o banimento de um membro                              |
 | `kick` / `/kick`         | Expulsa um membro do servidor                                |
 | `clear` / `/clear`       | Apaga mensagens de um canal                                  |
 | `timeout` / `/timeout`   | Aplica timeout em um membro                                  |
@@ -48,6 +48,16 @@ Ideal tanto para aprendizado quanto para uso real em servidores.
 | `ticket_add` / `ticket_remove` | Gerencia acesso ao ticket            |
 | `ticket_close`                 | Fecha ticket                         |
 
+### ⚙️ Comandos Interativos
+
+| Comando       | Tipo           | Descrição                                      |
+| ------------- | -------------- | ---------------------------------------------- |
+| `/ticket`     | Modal          | Criar ticket com formulário                    |
+| `/roles`      | Select Menu    | Escolher roles automaticamente                 |
+| `/report`     | Buttons        | Reportar usuário com confirmação               |
+| `/selectticket` | Select Menu  | Categorizar ticket (bug, sugestão, etc)        |
+| `/banreview`  | Buttons        | Confirmar/cancelar ban com interface visual    |
+
 ### 📊 Utilitários
 
 | Comando                      | Descrição               |
@@ -63,16 +73,24 @@ Ideal tanto para aprendizado quanto para uso real em servidores.
 
 ## 🎮 Tipos de Comandos
 
-O bot suporta dois tipos de comandos:
+O bot suporta múltiplos tipos de comandos:
 
-* **Prefixados**: `!ban`, `$clear`
-* **Slash Commands**: `/ban`, `/timeout`
+### 1. Prefixados
+* Sintaxe: `$ban`, `$clear`, `$warn`
+* Ideal para usuários experientes
+* Suporta argumentos dinâmicos
 
-Os slash commands oferecem melhor experiência com:
-
-* Autocomplete
-* Validação automática
+### 2. Slash Commands
+* Sintaxe: `/ban`, `/timeout`, `/userinfo`
+* Melhor experiência com autocomplete
+* Validação automática de tipos
 * Interface nativa do Discord
+
+### 3. Componentes Interativos
+* **Modals**: Formulários para criar tickets
+* **Select Menus**: Dropdowns para escolher roles ou categorias
+* **Buttons**: Confirmações com interface visual
+* Melhor UX e feedback do usuário
 
 ---
 
@@ -84,12 +102,18 @@ TheOnlyOne/
 ├── src/
 │   └── theonlyone/
 │       ├── app.py
+│       ├── data/
+│       │   ├── __init__.py
+│       │   └── database.py        # Camada de banco (MySQL opcional)
 │       ├── utils/
 │       │   ├── logger.py          # Sistema de logging
-│       │   └── database.py        # Camada de banco (MySQL opcional)
+│       │   └── __init__.py
 │       └── commands/
-│           ├── commands.py        # Comandos prefixados
-│           ├── slash_commands.py  # Slash commands
+│           ├── __init__.py
+│           ├── commands.py        # Comandos com prefixo ($)
+│           ├── moderation.py      # Slash commands de moderação (/)
+│           ├── info.py            # Slash commands de informação (/)
+│           ├── interactions.py    # Modals, buttons, select menus
 │           ├── reaction_roles.py  # Sistema de reaction roles
 │           └── tickets.py         # Sistema de tickets
 │
@@ -146,10 +170,13 @@ python src/theonlyone/app.py
 
 O bot precisa das seguintes permissões no servidor:
 
-* Banir membros
-* Desbanir membros
-* Gerenciar mensagens
-* Moderar membros (timeout)
+* Banir membros (`ban members`)
+* Desbanir membros (`unban members`)
+* Expulsar membros (`kick members`)
+* Gerenciar mensagens (`manage messages`)
+* Moderar membros (`moderate members` - timeout)
+* Gerenciar roles (`manage roles` - mute/unmute)
+* Gerenciar canais (`manage channels` - tickets)
 
 ---
 
@@ -194,11 +221,26 @@ O bot utiliza **MySQL** para persistência de dados.
 ```python
 from theonlyone.data import db
 
+# Sistema de warns
 db.add_warn(guild_id=123, user_id=456, moderator_id=789, reason="Spam")
 warns = db.get_warns(guild_id=123, user_id=456)
+db.clear_warns(guild_id=123, user_id=456)
 
+# Sistema de leveling
 db.add_xp(guild_id=123, user_id=456, xp=10)
-leaderboard = db.get_leaderboard(guild_id=123)
+stats = db.get_user_stats(guild_id=123, user_id=456)
+leaderboard = db.get_leaderboard(guild_id=123, limit=10)
+
+# Configurações
+db.set_log_channel(guild_id=123, channel_id=789)
+log_channel = db.get_log_channel(guild_id=123)
+
+# Reaction Roles
+db.add_reaction_role(guild_id=123, message_id=456, channel_id=789, emoji="🎮", role_id=999)
+
+# Tickets
+db.create_ticket(guild_id=123, ticket_id=1, user_id=456, channel_id=789)
+db.close_ticket(ticket_id=1, closed_by=456)
 ```
 
 ---
@@ -208,9 +250,12 @@ leaderboard = db.get_leaderboard(guild_id=123)
 * [x] Sistema de logs
 * [x] Slash commands
 * [x] Estrutura de banco (MySQL)
-* [ ] Integração completa com banco
+* [x] Integração completa com banco
+* [x] Componentes interativos (modals, buttons, select menus)
+* [x] Reorganização e consolidação de comandos
 * [ ] Sistema de permissões customizado
 * [ ] Histórico avançado de punições
+* [ ] Sistema de auto-moderação (detecção de spam/palavras proibidas)
 
 ---
 
