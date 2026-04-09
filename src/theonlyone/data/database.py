@@ -1,6 +1,10 @@
 import os
 from dotenv import load_dotenv
-from ..utils.logger import logger
+
+try:
+    from ..utils.logger import logger
+except ImportError:
+    from theonlyone.utils.logger import logger
 
 load_dotenv()
 
