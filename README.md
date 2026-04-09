@@ -192,7 +192,7 @@ O bot utiliza **MySQL** para persistência de dados.
 ### Uso
 
 ```python
-from theonlyone.utils.database import db
+from theonlyone.data import db
 
 db.add_warn(guild_id=123, user_id=456, moderator_id=789, reason="Spam")
 warns = db.get_warns(guild_id=123, user_id=456)
